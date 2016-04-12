@@ -4,23 +4,34 @@
 
 #include <iostream>
 #include "BufferManager.h"
+#include "Packet.h"
 
 Packet* BufferManager::allocate() {
-    unsigned char* buffer;
+    Buffer* buffer;
     std::lock_guard<std::mutex> lk(mutex);
-    if(buffer_queue.empty()){
-        buffer = new unsigned char[BUFFER_SIZE];
+    if(free_list!= nullptr){
+        buffer = free_list;
+        free_list = free_list->next;
     }else{
-        buffer = buffer_queue.front();
-        buffer_queue.pop();
+        buffer = new Buffer;
     }
     return new Packet(buffer);
 }
 
-void BufferManager::release(Packet *p) {
+void BufferManager::release(Packet* p) {
     std::lock_guard<std::mutex> lk(mutex);
-    buffer_queue.push(p->buffer);
-    delete p;
+    p->buffer->next = free_list;
+    free_list = p->buffer;
+    //delete p;
+}
+
+BufferManager::BufferManager(){
+    free_list = nullptr;
+    for (int i = 0; i < size; ++i) {
+        Buffer* b = new Buffer;
+        b->next = free_list;
+        free_list = b;
+    }
 }
 
 

@@ -6,11 +6,13 @@
 #define TAGSWITCH_PACKAGE_H
 
 
+#include "BufferManager.h"
+
 class Packet {
 public:
-    Packet(unsigned char *buf);
+    Packet(Buffer* b);
     int inputInterface=-1;
-    unsigned char *buffer;
+    Buffer *buffer;
 
 };
 

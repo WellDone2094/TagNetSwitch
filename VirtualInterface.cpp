@@ -70,10 +70,10 @@ void VirtualInterface::receiver() {
         /* byte received */
         Packet* p = bufferManager->allocate();
 
-        recvlen = recv(socketDescriptorReceiver, p->buffer, BUFFER_SIZE, 0);
+        recvlen = recv(socketDescriptorReceiver, p->buffer->data, BUFFER_SIZE, 0);
 
         if (recvlen > 0) {
-            p->buffer[recvlen] = 0;
+            p->buffer->data[recvlen] = 0;
             std::cout << p->buffer << std::endl;
             packetQueue->push(p);
         } else {

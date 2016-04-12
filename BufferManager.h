@@ -7,9 +7,10 @@
 
 #include <queue>
 #include <mutex>
-#include "Packet.h"
 
 #define BUFFER_SIZE 1024
+#define N_BUFFER 100
+
 struct Buffer {
     union {
         struct Buffer * next;
@@ -17,14 +18,17 @@ struct Buffer {
     };
 };
 
+class Packet;
 class BufferManager {
 public:
+    BufferManager();
     Packet* allocate();
     void release(Packet* p);
 
 private:
+    int size=N_BUFFER;
     Buffer * free_list;
-    std::queue<unsigned char*> buffer_queue;
+//    std::queue<unsigned char*> buffer_queue;
     std::mutex mutex;
 
 };

@@ -5,7 +5,7 @@
 #include <algorithm>
 #include "Packet.h"
 
-Packet::Packet(unsigned char *buf) {
+Packet::Packet(Buffer* buf) {
     this->buffer = buf;
     this->inputInterface = inputInterface;
 }
