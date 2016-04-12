@@ -1,53 +1,40 @@
 //
-// Created by Andrea Benfatti on 08/04/16.
+// Created by Andrea Benfatti on 11/04/16.
 //
 
 #include <sstream>
-#include <iostream>
 #include "SwitchManager.h"
+#include "Switch.h"
 
-void SwitchManager::add_function(std::string s, pVoidFunc f) {
-    funcTypeMap[s] = NO_ARGUMENT;
-    voidMap[s] = f;
-}
-
-void SwitchManager::add_function(std::string s, pIntFunc f) {
-    funcTypeMap[s] = INT_T;
-    intMap[s] = f;
-}
-
-void SwitchManager::add_function(std::string s, pIntStringFunc f) {
-    funcTypeMap[s] = INT_STRING;
-    intStringMap[s] = f;
-}
-
-std::string SwitchManager::executeCmd(std::string s) {
+const std::string SwitchManager::executeCmd(std::string s) {
     std::istringstream iss(s);
     std::string cmd;
     iss >> cmd;
 
-    std::map<std::string, func_type>::iterator res = funcTypeMap.find(cmd);
-    if(res == funcTypeMap.end()){
-        return std::string("invalid command");
+    if(methodMap.end() == methodMap.find(cmd)){
+        return "invalid command";
     }
 
     int n;
     std::string s1, s2;
-    switch (funcTypeMap[cmd]) {
-        case NO_ARGUMENT:
-            voidMap[cmd]();
+    Switch *sw = methodMap[cmd]->s;
+    switch (methodMap[cmd]->t) {
+        case VOID:
+            (sw->*methodMap[cmd]->void_m)();
             break;
-        case INT_STRING:
-            iss >> s1 >> s2;
-            n = std::stoi(s1, nullptr);
-            intStringMap[cmd](n, s2);
-            break;
-        case INT_T:
+        case INT:
             iss >> s1;
             n = std::stoi(s1, nullptr);
-            intMap[cmd](n);
+            (sw->*methodMap[cmd]->int_m)(n);
+            break;
+        case INT_STRING: iss >> s1 >> s2;
+            n = std::stoi(s1, nullptr);
+            (sw->*methodMap[cmd]->int_string_m)(n, s2);
             break;
     }
-
-    return s1;
 }
+
+void SwitchManager::add_method(const std::string s, SwitchMethod* m) {
+    methodMap[s] = m;
+}
+

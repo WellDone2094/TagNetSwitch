@@ -15,9 +15,10 @@
 class Switch {
 public:
     Switch();
-    void addInterface(int port, std::string ip);
+    void addInterface(int port, const std::string& ip);
     void executeCommand(std::string s);
     void printer();
+    void list_interfaces();
 
 private:
     std::map <int, VirtualInterface*> interfaces;

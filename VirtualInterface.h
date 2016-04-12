@@ -20,15 +20,14 @@ public:
     void stop();
     int getPort();
     void sendPakcet(Packet* packet);
+    std::string toString();
 
 private:
     int id;
+    in_addr_t addressReceiver;
+    in_addr_t addressSender;
     int portReceiver;
     int portSender;
-    struct sockaddr_in addressReceiver;
-    struct sockaddr_in addressSender;
-    struct sockaddr_in remAddress;
-    socklen_t addrlen = sizeof(remAddress);
     int socketDescriptorReceiver;
     int socketDescriptorSender;
 

@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <iostream>
+#include <arpa/inet.h>
 #include "VirtualInterface.h"
 
 
@@ -16,38 +17,13 @@ VirtualInterface::VirtualInterface(int id, u_int32_t addressReceiver, int portRe
     this->packetQueue = q;
     this->portReceiver = portReceiver;
     this->portSender = portSender;
-
-
-    /* set address */
-    memset((char *)&this->addressReceiver, 0, sizeof(this->addressReceiver));
-    this->addressReceiver.sin_family = AF_INET;
-    this->addressReceiver.sin_addr.s_addr = addressReceiver;
-    this->addressReceiver.sin_port = htons(portReceiver);
-
-    memset((char *)&this->addressSender, 0, sizeof(this->addressSender));
-    this->addressSender.sin_family = AF_INET;
-    this->addressSender.sin_addr.s_addr = addressSender;
-    this->addressSender.sin_port = htons(portSender);
+    this->addressSender = addressSender;
+    this->addressReceiver = addressReceiver;
 
 }
 
 void VirtualInterface::start() {
-    /* receive socket from system */
-    if((socketDescriptorReceiver = socket(AF_INET, SOCK_DGRAM, 0)) < 0){
-        perror("cannot create socket receiver");
-        return; //TODO
-    }
-
-    if((socketDescriptorSender = socket(AF_INET, SOCK_DGRAM, 0)) < 0){
-        perror("cannot create socket sender");
-        return; //TODO
-    }
-
-    /* bind the address */
-    if (bind(socketDescriptorReceiver, (struct sockaddr *)&addressReceiver, sizeof(addressReceiver)) < 0) {
-        perror("bind failed");
-        return; //TODO
-    }
+    running=true;
 
     treceiver = std::thread(&VirtualInterface::receiver, this);
     tsender = std::thread(&VirtualInterface::sender, this);
@@ -61,15 +37,39 @@ void VirtualInterface::sendPakcet(Packet* packet) {
 void VirtualInterface::receiver() {
     int recvlen;
 
-    std::cout << "server waiting on " << portReceiver << std::endl;
+    struct sockaddr_in sReceiver;
+    /* set address */
+    memset((char *)&sReceiver, 0, sizeof(sReceiver));
+    sReceiver.sin_family = AF_INET;
+    sReceiver.sin_addr.s_addr = INADDR_ANY;//addressReceiver;
+    sReceiver.sin_port = htons(portReceiver);
+
+
+    /* receive socket from system */
+    if((socketDescriptorReceiver = socket(AF_INET, SOCK_DGRAM, 0)) < 0){
+        perror("cannot create socket receiver");
+        return; //TODO
+    }
+
+    int val = 1;
+    setsockopt(socketDescriptorReceiver, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+
+
+    /* bind the address */
+    if (bind(socketDescriptorReceiver, (struct sockaddr *)&sReceiver, sizeof(sReceiver)) < 0) {
+        perror("bind failed");
+        return; //TODO
+    }
+
     while(running){
         /* byte received */
         Packet* p = bufferManager->allocate();
 
-        recvlen = recvfrom(socketDescriptorReceiver, p->buffer, BUFFER_SIZE, 0, (struct sockaddr *)&remAddress, &addrlen);
+        recvlen = recv(socketDescriptorReceiver, p->buffer, BUFFER_SIZE, 0);
 
         if (recvlen > 0) {
             p->buffer[recvlen] = 0;
+            std::cout << p->buffer << std::endl;
             packetQueue->push(p);
         } else {
             bufferManager->release(p);
@@ -78,10 +78,21 @@ void VirtualInterface::receiver() {
 }
 
 void VirtualInterface::sender() {
+    struct sockaddr_in sSender;
+    memset((char *)&sSender, 0, sizeof(sSender));
+    sSender.sin_family = AF_INET;
+    sSender.sin_addr.s_addr = addressSender;
+    sSender.sin_port = htons(portSender);
+
+    if((socketDescriptorSender = socket(AF_INET, SOCK_DGRAM, 0)) < 0){
+        perror("cannot create socket sender");
+        return; //TODO
+    }
+
     while(running){
         Packet* p = sendQueue.pop();
         if (p!= nullptr) {
-            if (sendto(socketDescriptorSender, p->buffer, BUFFER_SIZE, 0, (struct sockaddr *)&addressSender, sizeof(addressSender)) < 0) {
+            if (sendto(socketDescriptorSender, p->buffer, BUFFER_SIZE, 0, (struct sockaddr *)&sSender, sizeof(sSender)) < 0) {
                 std::cout << "send failed" << std::endl;
             }else{
                 std::cout << "sent " << id << std::endl;
@@ -98,6 +109,12 @@ void VirtualInterface::stop() {
     sendQueue.push(nullptr);
     treceiver.join();
     tsender.join();
-    std::cout << "closed" << std::endl;
 }
 
+std::string VirtualInterface::toString() {
+    return "id: "               + std::to_string(id) +
+            "\treceive_ip: "    + inet_ntoa({addressReceiver}) +
+            "\t\treceive_port: "  + std::to_string(portReceiver) +
+            "\t send_ip: "      + inet_ntoa({addressSender}) +
+            "\t\tsend_port: "     + std::to_string(portSender);
+}

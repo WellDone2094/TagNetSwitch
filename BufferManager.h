@@ -10,6 +10,12 @@
 #include "Packet.h"
 
 #define BUFFER_SIZE 1024
+struct Buffer {
+    union {
+        struct Buffer * next;
+        char data[BUFFER_SIZE];
+    };
+};
 
 class BufferManager {
 public:
@@ -17,6 +23,7 @@ public:
     void release(Packet* p);
 
 private:
+    Buffer * free_list;
     std::queue<unsigned char*> buffer_queue;
     std::mutex mutex;
 
