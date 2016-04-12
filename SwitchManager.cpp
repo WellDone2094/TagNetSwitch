@@ -20,16 +20,24 @@ const std::string SwitchManager::executeCmd(std::string s) {
     Switch *sw = methodMap[cmd]->s;
     switch (methodMap[cmd]->t) {
         case VOID:
-            (sw->*methodMap[cmd]->void_m)();
+            return (sw->*methodMap[cmd]->void_m)();
             break;
         case INT:
             iss >> s1;
-            n = std::stoi(s1, nullptr);
-            (sw->*methodMap[cmd]->int_m)(n);
+            try {
+                n = std::stoi(s1, nullptr);
+                return (sw->*methodMap[cmd]->int_m)(n);
+            }catch (const std::invalid_argument& e){
+                return "invalid argument";
+            }
             break;
         case INT_STRING: iss >> s1 >> s2;
-            n = std::stoi(s1, nullptr);
-            (sw->*methodMap[cmd]->int_string_m)(n, s2);
+            try {
+                n = std::stoi(s1, nullptr);
+                return (sw->*methodMap[cmd]->int_string_m)(n, s2);
+            }catch (const std::invalid_argument& e){
+                return "invalid argument";
+            }
             break;
     }
 }

@@ -31,18 +31,19 @@ private:
     int socketDescriptorReceiver;
     int socketDescriptorSender;
 
+    bool running = false;
     std::thread tsender;
     std::thread treceiver;
-    bool running = true;
 
     SyncQueue<Packet* >* packetQueue;
     SyncQueue<Packet* > sendQueue;
 
     BufferManager* bufferManager;
 
-
     void receiver();
     void sender();
+
+    std::mutex mutex;
 };
 
 

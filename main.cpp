@@ -13,7 +13,7 @@ int main() {
 
     Switch s;
     for (std::string line; std::getline(std::cin, line);) {
-        s.executeCommand(line);
+        std::cout << s.executeCommand(line) << std::endl;
     }
 
     return 0;

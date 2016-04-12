@@ -15,14 +15,16 @@ Switch::Switch() {
 
     switchManager.add_method("list_interfaces", new SwitchMethod(this, &Switch::list_interfaces));
     switchManager.add_method("add_interface", new SwitchMethod(this, &Switch::addInterface));
+    switchManager.add_method("start_interface", new SwitchMethod(this, &Switch::start_interface));
+    switchManager.add_method("stop_interface", new SwitchMethod(this, &Switch::stop_interface));
 }
 
-void Switch::addInterface(int port, const std::string& ip) {
+const std::string Switch::addInterface(int port, const std::string& ip) {
     lastId++;
     VirtualInterface* i = new VirtualInterface(lastId, INADDR_ANY, lastPort++, inet_addr(ip.c_str()), port ,&packetQueue, &bufferManager);
     interfaces[lastId] = i;
     i->start();
-    std::cout << i->toString() << std::endl;
+    return i->toString() + "\n";
 }
 
 void Switch::printer() {
@@ -36,16 +38,34 @@ void Switch::printer() {
     }
 }
 
-void Switch::executeCommand(std::string s) {
-    switchManager.executeCmd(s);
+const std::string Switch::executeCommand(std::string s) {
+    return switchManager.executeCmd(s);
 }
 
-void Switch::list_interfaces() {
+const std::string Switch::list_interfaces() {
+    std::string ret = "";
     for(std::map<int, VirtualInterface *>::iterator i = interfaces.begin();
         i != interfaces.end();
         i++) {
-        std::cout << i->second->toString() << std::endl;
+        ret += i->second->toString() + "\n";
     }
+    return ret;
 }
 
+const std::string Switch::start_interface(int id) {
+    if(interfaces.end()==interfaces.find(id))
+        return "invalid interface id";
+
+    interfaces[id]->start();
+    return "interface started";
+
+}
+
+const std::string Switch::stop_interface(int id) {
+    if(interfaces.end()==interfaces.find(id))
+        return "invalid interface id";
+
+    interfaces[id]->stop();
+    return "interface stoped";
+}
 
