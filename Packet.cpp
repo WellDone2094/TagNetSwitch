@@ -18,9 +18,33 @@ void Packet::parse() {
 
 bool Packet::match(const filter_t &filter, tree_t tree, interface_t ifx) {
     std::cout << "tree: " << tree << "\tinterface: " << ifx << std::endl;
-    VirtualInterface * i = interfaces->at(ifx);
-    if (i->id != this->inputInterface)
+    try {
+        VirtualInterface *i = interfaces->at(ifx);
+        if (i->id != this->inputInterface)
+            this->incCopyCounter();
         i->sendPacket(this);
+    }catch(std::out_of_range& e){}
+
     return false;
+}
+
+void Packet::decCopyCounter() {
+    std::unique_lock<std::mutex> lk(mutex);
+    --copyCounter;
+}
+
+void Packet::incCopyCounter() {
+    std::unique_lock<std::mutex> lk(mutex);
+    ++copyCounter;
+}
+
+bool Packet::isDeletable() {
+    std::unique_lock<std::mutex> lk(mutex);
+    return deletable;
+}
+
+void Packet::setDeletable(bool b){
+    std::unique_lock<std::mutex> lk(mutex);
+    deletable = b;
 }
 

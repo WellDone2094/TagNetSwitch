@@ -24,14 +24,27 @@ class VirtualInterface;
 class Packet : public match_handler {
 public:
     Packet(Buffer* b);
+
     int inputInterface = 0;
     tree_t *tree;
     filter_t descriptor;
     Buffer *buffer;
     std::map <int, VirtualInterface*> *interfaces;
 
+    void decCopyCounter();
+    void incCopyCounter();
+    bool isDeletable();
+    void setDeletable(bool b);
+
+
     void parse();
     bool match(const filter_t & filter, tree_t tree, interface_t ifx);
+
+private:
+
+    int copyCounter = 0;
+    bool deletable = false;
+    std::mutex mutex;
 };
 
 

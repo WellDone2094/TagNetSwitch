@@ -20,9 +20,14 @@ Packet* BufferManager::allocate() {
 
 void BufferManager::release(Packet* p) {
     std::lock_guard<std::mutex> lk(mutex);
-    p->buffer->next = free_list;
-    free_list = p->buffer;
-    //delete p;
+    std::cout << "release" << std::endl;
+    p->decCopyCounter();
+    if (p->isDeletable()) {
+        p->buffer->next = free_list;
+        free_list = p->buffer;
+        delete p;
+        std::cout << "deleted" << std::endl;
+    }
 }
 
 BufferManager::BufferManager(){

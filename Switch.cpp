@@ -35,7 +35,10 @@ void Switch::worker() {
         Packet* p = packetQueue.pop();
         p->interfaces = &interfaces;
         p->descriptor.printStr();
+        p->incCopyCounter();
         matcher.match(p->descriptor, *(p->tree), *p);
+        p->setDeletable(true);
+        bufferManager.release(p);
     }
 
 }
