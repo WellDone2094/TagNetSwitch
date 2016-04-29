@@ -19,11 +19,12 @@ public:
     void start();
     void stop();
     int getPort();
-    void sendPakcet(Packet* packet);
+    void sendPacket(Packet* packet);
     std::string toString();
 
-private:
     int id;
+
+private:
     in_addr_t addressReceiver;
     in_addr_t addressSender;
     int portReceiver;

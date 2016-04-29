@@ -54,6 +54,10 @@ public:
 	static const pos_t NULL_POSITION = Size;
 	static const pos_t WIDTH = Size;
 
+	void printStr() {
+		std::cout << std::bitset<64>(b[0]) << std::bitset<64>(b[1]) << std::bitset<64>(b[2]) << std::endl;
+	}
+
 	bv() { reset(); }
 
 	bv(const char* cbv) {

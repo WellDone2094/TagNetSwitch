@@ -35,7 +35,7 @@ void VirtualInterface::start() {
 }
 
 
-void VirtualInterface::sendPakcet(Packet* packet) {
+void VirtualInterface::sendPacket(Packet* packet) {
     sendQueue.push(packet);
 }
 
@@ -74,7 +74,10 @@ void VirtualInterface::receiver() {
 
         if (recvlen > 0) {
             p->buffer->data[recvlen] = 0;
+            std::cout << "received" << std::endl;
             std::cout << p->buffer << std::endl;
+            p->inputInterface = id;
+            p->parse();
             packetQueue->push(p);
         } else {
             bufferManager->release(p);

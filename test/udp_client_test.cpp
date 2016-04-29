@@ -80,7 +80,22 @@ int main() {
         std::cout << "insert message:" << std::endl;
         std::string line;
         std::getline(std::cin, line);
-        strcpy(my_message, line.c_str());
+
+
+        /* add tree number and descriptor to the message */
+        int16_t tree = 0;
+        int64_t b[3];
+
+        b[0] = 0x3580262917356263;
+        b[1] = 0x8362952135251622;
+        b[2] = 0x1736252119264231;
+
+        strncpy(my_message, (char*)&tree, 2);
+        strncpy(my_message+2, (char*)b, 24);
+        strcpy(my_message+26, line.c_str());
+
+        std::cout << std::bitset<64>(b[0]) << std::bitset<64>(b[1]) << std::bitset<64>(b[2]) << std::endl;
+
         std::cout << my_message << std::endl;
 
 
@@ -92,11 +107,11 @@ int main() {
         }
 
         /* put the host's address into the server address structure */
-//        memcpy((void *) &servaddr.sin_addr, hp->h_addr_list[0], hp->h_length);
+        memcpy((void *) &servaddr.sin_addr, hp->h_addr_list[0], hp->h_length);
         servaddr.sin_addr.s_addr = inet_addr(host);
 
         /* send a message to the server */
-        if (sendto(fd, my_message, strlen(my_message), 0, (struct sockaddr *) &servaddr, sizeof(servaddr)) < 0) {
+        if (sendto(fd, my_message, 1024, 0, (struct sockaddr *) &servaddr, sizeof(servaddr)) < 0) {
             perror("sendto failed");
             return 0;
         }

@@ -11,7 +11,7 @@
 class Switch;
 
 enum type {
-    VOID, INT, STRING, INT_STRING
+    VOID, INT, STRING, INT_STRING, INT_INT_STRING
 };
 
 struct SwitchMethod {
@@ -19,6 +19,7 @@ struct SwitchMethod {
     SwitchMethod(Switch* o, const std::string (Switch::* m)(int)) : s(o), t(INT), int_m(m) {}
     SwitchMethod(Switch* o, const std::string (Switch::* m)(const std::string &)) : s(o), t(STRING), string_m(m) {}
     SwitchMethod(Switch* o, const std::string (Switch::* m)(int, const std::string &)) : s(o), t(INT_STRING), int_string_m(m) {}
+    SwitchMethod(Switch* o, const std::string (Switch::* m)(int, int, const std::string &)) : s(o), t(INT_INT_STRING), int_int_string_m(m) {}
 
     enum type t;
     Switch *s;
@@ -27,6 +28,7 @@ struct SwitchMethod {
         const std::string (Switch::* int_m)(int);
         const std::string (Switch::* void_m)();
         const std::string (Switch::* int_string_m)(int, const std::string &);
+        const std::string (Switch::* int_int_string_m)(int, int, const std::string &);
     };
 };
 

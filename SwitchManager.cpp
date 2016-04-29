@@ -15,8 +15,8 @@ const std::string SwitchManager::executeCmd(std::string s) {
         return "invalid command";
     }
 
-    int n;
-    std::string s1, s2;
+    int n1, n2;
+    std::string s1, s2, s3;
     Switch *sw = methodMap[cmd]->s;
     switch (methodMap[cmd]->t) {
         case VOID:
@@ -25,20 +25,30 @@ const std::string SwitchManager::executeCmd(std::string s) {
         case INT:
             iss >> s1;
             try {
-                n = std::stoi(s1, nullptr);
-                return (sw->*methodMap[cmd]->int_m)(n);
+                n1 = std::stoi(s1, nullptr);
+                return (sw->*methodMap[cmd]->int_m)(n1);
             }catch (const std::invalid_argument& e){
                 return "invalid argument";
             }
             break;
         case INT_STRING: iss >> s1 >> s2;
             try {
-                n = std::stoi(s1, nullptr);
-                return (sw->*methodMap[cmd]->int_string_m)(n, s2);
+                n1 = std::stoi(s1, nullptr);
+                return (sw->*methodMap[cmd]->int_string_m)(n1, s2);
             }catch (const std::invalid_argument& e){
                 return "invalid argument";
             }
             break;
+        case INT_INT_STRING: iss >> s1 >> s2 >> s3;
+            try {
+                n1 = std::stoi(s1, nullptr);
+                n2 = std::stoi(s2, nullptr);
+                return (sw->*methodMap[cmd]->int_int_string_m)(n1,n2, s3);
+            }catch (const std::invalid_argument& e){
+                return "invalid argument";
+            }
+            break;
+
     }
 }
 
