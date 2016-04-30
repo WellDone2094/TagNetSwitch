@@ -21,8 +21,7 @@ Packet* BufferManager::allocate() {
 void BufferManager::release(Packet* p) {
     std::lock_guard<std::mutex> lk(mutex);
     std::cout << "release" << std::endl;
-    p->decCopyCounter();
-    if (p->isDeletable()) {
+    if (p->decCopyCounter()) {
         p->buffer->next = free_list;
         free_list = p->buffer;
         delete p;

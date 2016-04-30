@@ -31,7 +31,7 @@ public:
     Buffer *buffer;
     std::map <int, VirtualInterface*> *interfaces;
 
-    void decCopyCounter();
+    bool decCopyCounter();
     void incCopyCounter();
     bool isDeletable();
     void setDeletable(bool b);

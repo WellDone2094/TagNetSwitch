@@ -28,9 +28,10 @@ bool Packet::match(const filter_t &filter, tree_t tree, interface_t ifx) {
     return false;
 }
 
-void Packet::decCopyCounter() {
+bool Packet::decCopyCounter() {
     std::unique_lock<std::mutex> lk(mutex);
     --copyCounter;
+    return deletable && copyCounter == 0;
 }
 
 void Packet::incCopyCounter() {
@@ -38,10 +39,6 @@ void Packet::incCopyCounter() {
     ++copyCounter;
 }
 
-bool Packet::isDeletable() {
-    std::unique_lock<std::mutex> lk(mutex);
-    return deletable;
-}
 
 void Packet::setDeletable(bool b){
     std::unique_lock<std::mutex> lk(mutex);
