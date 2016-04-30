@@ -16,10 +16,10 @@
 class Switch{
 public:
     Switch();
+
+    bool running = true;
+
     void worker();
-
-
-    bool match(const filter_t & filter, tree_t tree, interface_t ifx);
 
     const std::string executeCommand(std::string s);
     const std::string add_interface(int port, const std::string& ip);
@@ -27,6 +27,7 @@ public:
     const std::string start_interface(int id);
     const std::string stop_interface(int id);
     const std::string add_filter(int tree, int interface, const std::string& filter);
+    const std::string quit();
 
 private:
     std::map <int, VirtualInterface*> interfaces;
@@ -36,6 +37,7 @@ private:
     BufferManager bufferManager;
     SwitchManager switchManager;
     predicate matcher;
+    std::thread* worker_t;
 
 };
 

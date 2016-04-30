@@ -13,13 +13,14 @@
 Switch::Switch() : matcher(N_FILTERS){
     lastPort = 4000;
     lastId = 0;
-    std::thread * t1 = new std::thread(&Switch::worker, this);
+    worker_t = new std::thread(&Switch::worker, this);
 
     switchManager.add_method("list_interfaces", new SwitchMethod(this, &Switch::list_interfaces));
     switchManager.add_method("add_interface", new SwitchMethod(this, &Switch::add_interface));
     switchManager.add_method("start_interface", new SwitchMethod(this, &Switch::start_interface));
     switchManager.add_method("stop_interface", new SwitchMethod(this, &Switch::stop_interface));
     switchManager.add_method("add_filter", new SwitchMethod(this, &Switch::add_filter));
+    switchManager.add_method("quit", new SwitchMethod(this, &Switch::quit));
 }
 
 const std::string Switch::add_interface(int port, const std::string& ip) {
@@ -31,16 +32,31 @@ const std::string Switch::add_interface(int port, const std::string& ip) {
 }
 
 void Switch::worker() {
-    for(;;){
+    while(running){
         Packet* p = packetQueue.pop();
+        if(p== nullptr) continue;
         p->interfaces = &interfaces;
         p->descriptor.printStr();
-        p->incCopyCounter();
         matcher.match(p->descriptor, *(p->tree), *p);
         p->setDeletable(true);
         bufferManager.release(p);
     }
 
+}
+const std::string Switch::quit(){
+    running = false;
+    std::cout << "closing interfaces ... " << std::endl;
+    for(std::map<int, VirtualInterface*>::iterator it=interfaces.begin();
+            it!=interfaces.end();
+            ++it){
+        it->second->stop();
+        std::cout << "interface " << it->first << " closed" << std::endl;
+    }
+    std::cout << "closing workers ... " << std::endl;
+    packetQueue.push(nullptr);
+    worker_t->join();
+    std::cout << "worker closed" << std::endl;
+    return "closed";
 }
 
 const std::string Switch::executeCommand(std::string s) {

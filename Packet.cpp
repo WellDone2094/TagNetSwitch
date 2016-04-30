@@ -31,7 +31,7 @@ bool Packet::match(const filter_t &filter, tree_t tree, interface_t ifx) {
 bool Packet::decCopyCounter() {
     std::unique_lock<std::mutex> lk(mutex);
     --copyCounter;
-    return deletable && copyCounter == 0;
+    return deletable && copyCounter <= 0;
 }
 
 void Packet::incCopyCounter() {

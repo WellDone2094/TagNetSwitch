@@ -25,7 +25,7 @@ class Packet : public match_handler {
 public:
     Packet(Buffer* b);
 
-    int inputInterface = 0;
+    int inputInterface = 1;
     tree_t *tree;
     filter_t descriptor;
     Buffer *buffer;
