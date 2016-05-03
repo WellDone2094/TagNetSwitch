@@ -25,11 +25,15 @@ void readConfFile(Switch* s, char* fname){
 
 int main(int argc, char *argv[]) {
 
-    Switch s;
+    int port = atoi(argv[1]);
+    Switch s(port);
     opterr = 0;
     char c;
     while ((c = getopt(argc, argv, "f:")) != -1) {
         switch (c) {
+            case 'p':    /* field separator */
+                port = atoi(optarg);
+                break;
             case 'f':    /* field separator */
                 readConfFile(&s, optarg);
                 break;

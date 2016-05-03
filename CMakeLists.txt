@@ -17,7 +17,7 @@ set(SOURCE_FILES_MAIN
         predicate.cpp predicate.h
         bv.h
         ServerConnection.cpp ServerConnection.h
-        )
+        hashFunction.h)
 
 add_executable(TagSwitchMain ${SOURCE_FILES_MAIN})
 

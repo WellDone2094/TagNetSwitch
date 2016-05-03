@@ -80,6 +80,18 @@ const std::string SwitchManager::executeCmd(std::string s) {
                 return "invalid argument";
             }
             break;
+        case INT_INT_LIST: iss >> s1 >> s2;
+            try {
+                n1 = std::stoi(s1, nullptr);
+                n2 = std::stoi(s2, nullptr);
+                std::vector<std::string> v;
+                while(iss >> s3){
+                    v.push_back(s3);
+                }
+                return (sw->*methodMap[cmd]->int_int_list_m)(n1, n2, v);
+            }catch (const std::invalid_argument& e){
+                return "invalid argument";
+            }
 
     }
 }
