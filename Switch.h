@@ -22,7 +22,7 @@ public:
     void worker();
 
     const std::string executeCommand(std::string s);
-    const std::string add_interface(int port, const std::string& ip);
+    const std::string add_interface(int inPort, int outPort, const std::string& ip);
     const std::string list_interfaces();
     const std::string start_interface(int id);
     const std::string stop_interface(int id);

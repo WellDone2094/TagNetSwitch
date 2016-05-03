@@ -23,9 +23,9 @@ Switch::Switch() : matcher(N_FILTERS), switchManager(3000){
     switchManager.add_method("quit", new SwitchMethod(this, &Switch::quit));
 }
 
-const std::string Switch::add_interface(int port, const std::string& ip) {
+const std::string Switch::add_interface(int inPort, int outPort, const std::string& ip) {
     lastId++;
-    VirtualInterface* i = new VirtualInterface(lastId, INADDR_ANY, lastPort++, inet_addr(ip.c_str()), port ,&packetQueue, &bufferManager);
+    VirtualInterface* i = new VirtualInterface(lastId, INADDR_ANY, inPort, inet_addr(ip.c_str()), outPort ,&packetQueue, &bufferManager);
     interfaces[lastId] = i;
     i->start();
     return i->toString() + "\n";
@@ -96,8 +96,3 @@ const std::string Switch::add_filter(int tree, int interface, const std::string&
     matcher.add(f, (tree_t) tree, (interface_t) interface);
     return "filter added";
 }
-
-// 000101110011011000100101001000010001100100100110010000100011000110000011011000101001010100100001001101010010010100010110001000100011010110000000001001100010100100010111001101010110001001100011
-// 001101011000000000100110001010010001011100110101011000100110001110000011011000101001010100100001001101010010010100010110001000100001011100110110001001010010000100011001001001100100001000110001
-
-
