@@ -73,7 +73,7 @@ public:
 	bv(const std::string &s) {
 		reset();
 		std::string::const_iterator si = s.begin();
-		for(int i = BLOCK_COUNT - 1; i >= 0; --i) {
+		for(int i = 0; i < BLOCK_COUNT; ++i) {
 			for(block_t mask = (BLOCK_ONE << (BLOCK_SIZE - 1)); mask != 0; mask >>= 1) {
 				if (si != s.end()) {
 					if (*si == '1')
