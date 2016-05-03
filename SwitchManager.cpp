@@ -3,8 +3,40 @@
 //
 
 #include <sstream>
+#include <zconf.h>
 #include "SwitchManager.h"
 #include "Switch.h"
+#include "ServerConnection.h"
+
+void SwitchManager::TCPServer(){
+    int nbyte = 1;
+    int clientfd;
+    char buff[1024];
+    std::string str = "";
+    while(running){
+        clientfd = sc.takeConn();
+        nbyte = recv(clientfd, buff, 1024, 0);
+
+        while(nbyte>0){
+            str.append(buff, nbyte);
+            std::stringstream ss(str);
+            std::string line;
+            std::string resp;
+            while (std::getline(ss, line)) {
+                if(!ss.eof()) {
+                    resp = executeCmd(line);
+                    std::cout << resp << std::endl;
+                    send(clientfd, resp.c_str(), resp.length(), 0);
+                    str="";
+                }else{
+                    str = line;
+                }
+            }
+            nbyte = recv(clientfd, buff, 10, 0);
+        }
+        close(clientfd);
+    }
+}
 
 const std::string SwitchManager::executeCmd(std::string s) {
     std::istringstream iss(s);

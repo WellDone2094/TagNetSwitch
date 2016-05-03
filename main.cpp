@@ -5,7 +5,9 @@
 
 #include <getopt.h>
 #include <fstream>
+#include <sstream>
 #include "VirtualInterface.h"
+#include "ServerConnection.h"
 
 #include "Switch.h"
 
@@ -49,6 +51,7 @@ int main(int argc, char *argv[]) {
     for (std::string line; s.running && std::getline(std::cin, line);) {
         std::cout << s.executeCommand(line) << std::endl;
     }
+
 
     return 0;
 }

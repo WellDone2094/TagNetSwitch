@@ -7,6 +7,8 @@
 
 #include <string>
 #include <map>
+#include <thread>
+#include "ServerConnection.h"
 
 class Switch;
 
@@ -34,12 +36,19 @@ struct SwitchMethod {
 
 class SwitchManager {
 public:
+    SwitchManager(uint16_t port) : sc(port){
+        server = std::thread(&SwitchManager::TCPServer, this);
+    };
     void add_method(const std::string s, SwitchMethod* m);
+    void TCPServer();
 
     const std::string executeCmd(std::string);
 
 private:
     std::map<std::string, SwitchMethod*> methodMap;
+    bool running = true;
+    ServerConnection sc;
+    std::thread server;
 };
 
 #endif //TAGSWITCH_SWITCHMANAGER_H

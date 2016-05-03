@@ -10,7 +10,7 @@
 #define N_FILTERS 10
 
 
-Switch::Switch() : matcher(N_FILTERS){
+Switch::Switch() : matcher(N_FILTERS), switchManager(3000){
     lastPort = 4000;
     lastId = 0;
     worker_t = new std::thread(&Switch::worker, this);

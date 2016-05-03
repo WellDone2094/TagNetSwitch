@@ -13,7 +13,7 @@ Packet::Packet(Buffer* buf) {
 void Packet::parse() {
     this->tree = (uint16_t *) buffer->data;
     this->descriptor = filter_t(&buffer->data[2]);
-    this->descriptor.printStr();
+//    this->descriptor.printStr();
 }
 
 bool Packet::match(const filter_t &filter, tree_t tree, interface_t ifx) {
