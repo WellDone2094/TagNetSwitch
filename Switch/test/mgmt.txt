@@ -1,0 +1,20 @@
+class Management {
+    void register_call(const string &, void (callback)(int));
+    void register_call(const string &, void (callback)(const string &));
+    void register_call(const string &, void (callback)());
+    void register_call(const string &, void (callback)(float));
+
+};
+
+void pippo(const string & v) {
+    std::cout << v;
+}
+
+
+
+
+Management MgmtInterface;
+
+MgmtInterface.register("pippo", pippo);
+
+
