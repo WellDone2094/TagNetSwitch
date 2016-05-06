@@ -142,7 +142,7 @@ public:
 		// 500 million users.
 		//
 		static const unsigned int Hamming_Weight_Dist[filter_t::WIDTH] = {
-			0,  0,  0,  0,  0,  0,  0,  1,  1,  1,      //0   --  9
+			0,  0,  0,  0,  0,  0,  1,  1,  1,  1,      //0   --  9
 			//1,  3, 18, 39,  1,  1,  1,  1,  1,  1,    //10  --  19  //1M filters per trie
 			//1,  2, 9, 20,  1,  1,  1,  1,  1,  1,     //10  --  19  //2M filters per trie
 			//1,  1, 5, 10,  1,  1,  1,  1,  1,  1,     //10  --  19  //4M filters per trie
@@ -174,6 +174,8 @@ public:
 				if (n == 0)
 					n = 1;
 				roots[i].set_size(n);
+			} else {
+				roots[i].set_size(1);
 			}
 		}
 

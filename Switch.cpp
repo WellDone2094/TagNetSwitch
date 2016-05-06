@@ -18,6 +18,7 @@ Switch::Switch(int port) : matcher(N_FILTERS), switchManager(port){
 
     switchManager.add_method("list_interfaces", new SwitchMethod(this, &Switch::list_interfaces));
     switchManager.add_method("add_interface", new SwitchMethod(this, &Switch::add_interface));
+    switchManager.add_method("set_interface_out", new SwitchMethod(this, &Switch::set_interface_out));
     switchManager.add_method("start_interface", new SwitchMethod(this, &Switch::start_interface));
     switchManager.add_method("stop_interface", new SwitchMethod(this, &Switch::stop_interface));
     switchManager.add_method("add_filter", new SwitchMethod(this, &Switch::add_filter));
@@ -25,12 +26,19 @@ Switch::Switch(int port) : matcher(N_FILTERS), switchManager(port){
     switchManager.add_method("quit", new SwitchMethod(this, &Switch::quit));
 }
 
-const std::string Switch::add_interface(int inPort, int outPort, const std::string& ip) {
+const std::string Switch::add_interface(int inPort) {
     lastId++;
-    VirtualInterface* i = new VirtualInterface(lastId, INADDR_ANY, inPort, inet_addr(ip.c_str()), outPort ,&packetQueue, &bufferManager);
+    VirtualInterface* i = new VirtualInterface(lastId, INADDR_ANY, inPort, &packetQueue, &bufferManager);
     interfaces[lastId] = i;
     i->start();
     return i->toString() + "\n";
+}
+
+const std::string Switch::set_interface_out(int id, int port, const std::string& ip){
+    if(interfaces.end()==interfaces.find(id))
+        return "invalid interface id";
+    interfaces[id]->setSenderIpPort(inet_addr(ip.c_str()), port);
+    return interfaces[id]->toString() + "\n";
 }
 
 void Switch::worker() {
@@ -58,6 +66,8 @@ const std::string Switch::quit(){
     packetQueue.push(nullptr);
     worker_t->join();
     std::cout << "worker closed" << std::endl;
+    switchManager.quit();
+    std::cout << "switchManager closed" << std::endl;
     return "closed";
 }
 
@@ -105,6 +115,7 @@ const std::string Switch::add_tags(int tree, int interface, std::vector<std::str
         for(int i=0; i<7; ++i)
             f.set(hash(i, s.c_str(), s.c_str()+s.length())%192);
     }
+    f.printStr();
     matcher.add(f, (tree_t) tree, (interface_t) interface);
     return "filter added";
 }

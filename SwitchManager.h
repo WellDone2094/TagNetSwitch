@@ -43,15 +43,16 @@ public:
         server = std::thread(&SwitchManager::TCPServer, this);
     };
     void add_method(const std::string s, SwitchMethod* m);
+    void quit();
     void TCPServer();
 
     const std::string executeCmd(std::string);
 
+    std::thread server;
 private:
     std::map<std::string, SwitchMethod*> methodMap;
     bool running = true;
     ServerConnection sc;
-    std::thread server;
 };
 
 #endif //TAGSWITCH_SWITCHMANAGER_H

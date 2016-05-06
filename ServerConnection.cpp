@@ -33,5 +33,4 @@ int ServerConnection::takeConn() {
 
 ServerConnection::~ServerConnection() {
 	std::cout << "Closing server socket " << std::endl;
-	close(sockfd);
 }

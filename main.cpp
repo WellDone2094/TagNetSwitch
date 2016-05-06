@@ -51,10 +51,13 @@ int main(int argc, char *argv[]) {
         }
     }
 
-
-    for (std::string line; s.running && std::getline(std::cin, line);) {
-        std::cout << s.executeCommand(line) << std::endl;
+    while (s.running){
+        sleep(1);
     }
+//    for (std::string line; s.running && std::getline(std::cin, line);) {
+//        std::cout << s.executeCommand(line) << std::endl;
+//    }
+    s.switchManager.server.join();
 
 
     return 0;

@@ -16,13 +16,15 @@
 class Switch{
 public:
     Switch(int port);
+    SwitchManager switchManager;
 
     bool running = true;
 
     void worker();
 
     const std::string executeCommand(std::string s);
-    const std::string add_interface(int inPort, int outPort, const std::string& ip);
+    const std::string add_interface(int inPort);
+    const std::string set_interface_out(int interface, int port, const std::string& ip);
     const std::string list_interfaces();
     const std::string start_interface(int id);
     const std::string stop_interface(int id);
@@ -30,13 +32,13 @@ public:
     const std::string add_tags(int tree, int interface, std::vector<std::string>& tags);
     const std::string quit();
 
+
 private:
     std::map <int, VirtualInterface*> interfaces;
     SyncQueue<Packet*> packetQueue;
     int lastPort;
     int lastId;
     BufferManager bufferManager;
-    SwitchManager switchManager;
     predicate matcher;
     std::thread* worker_t;
 

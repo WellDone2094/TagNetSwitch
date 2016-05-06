@@ -14,10 +14,11 @@
 
 class VirtualInterface {
 public:
-    VirtualInterface(int id, u_int32_t addressReceiver, int portReceiver, u_int32_t addressSender, int portSender, SyncQueue<Packet* >* q, BufferManager* bufferManager);
+    VirtualInterface(int id, u_int32_t addressReceiver, int portReceiver, SyncQueue<Packet* >* q, BufferManager* bufferManager);
 
     void start();
     void stop();
+    void setSenderIpPort(u_int32_t addressSender, int portSender);
     int getPort();
     void sendPacket(Packet* packet);
     std::string toString();
@@ -33,6 +34,7 @@ private:
     int socketDescriptorSender;
 
     bool running = false;
+    bool senderRunning = false;
     std::thread tsender;
     std::thread treceiver;
 

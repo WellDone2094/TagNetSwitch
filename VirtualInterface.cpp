@@ -10,14 +10,14 @@
 #include "VirtualInterface.h"
 
 
-VirtualInterface::VirtualInterface(int id, u_int32_t addressReceiver, int portReceiver, u_int32_t addressSender, int portSender, SyncQueue<Packet* >* q, BufferManager* bufferManager) {
+VirtualInterface::VirtualInterface(int id, u_int32_t addressReceiver, int portReceiver, SyncQueue<Packet* >* q, BufferManager* bufferManager) {
 
     this->id = id;
     this->bufferManager = bufferManager;
     this->packetQueue = q;
     this->portReceiver = portReceiver;
-    this->portSender = portSender;
-    this->addressSender = addressSender;
+    this->portSender = -1;
+    this->addressSender = 0;
     this->addressReceiver = addressReceiver;
 
 }
@@ -31,7 +31,10 @@ void VirtualInterface::start() {
     }
 
     treceiver = std::thread(&VirtualInterface::receiver, this);
-    tsender = std::thread(&VirtualInterface::sender, this);
+    if(portSender!= -1) {
+        senderRunning = true;
+        tsender = std::thread(&VirtualInterface::sender, this);
+    }
 }
 
 
@@ -98,7 +101,7 @@ void VirtualInterface::sender() {
         return; //TODO
     }
 
-    while(running){
+    while(senderRunning){
         Packet* p = sendQueue.pop();
         if (p!= nullptr) {
             if (sendto(socketDescriptorSender, p->buffer, BUFFER_SIZE, 0, (struct sockaddr *)&sSender, sizeof(sSender)) < 0) {
@@ -109,6 +112,7 @@ void VirtualInterface::sender() {
     }
 }
 
+
 void VirtualInterface::stop() {
     std::lock_guard<std::mutex> lk(mutex);
     if(running) {
@@ -118,10 +122,28 @@ void VirtualInterface::stop() {
     }
 
     close(socketDescriptorReceiver);
-    close(socketDescriptorSender);
-    sendQueue.push(nullptr);
     treceiver.join();
-    tsender.join();
+    if(senderRunning) {
+        senderRunning = false;
+        close(socketDescriptorSender);
+        sendQueue.push(nullptr);
+        tsender.join();
+    }
+}
+
+void VirtualInterface::setSenderIpPort(u_int32_t addressSender, int portSender) {
+    if (senderRunning) {
+        senderRunning = false;
+        close(socketDescriptorSender);
+        sendQueue.push(nullptr);
+        tsender.join();
+    }
+    this->addressSender = addressSender;
+    this->portSender = portSender;
+    if(running) {
+        senderRunning = true;
+        tsender = std::thread(&VirtualInterface::sender, this);
+    }
 }
 
 std::string VirtualInterface::toString() {
@@ -130,5 +152,6 @@ std::string VirtualInterface::toString() {
             "\t\treceive_port: "+ std::to_string(portReceiver) +
             "\t send_ip: "      + inet_ntoa({addressSender}) +
             "\t\tsend_port: "   + std::to_string(portSender) +
-            "\trunning: "       + std::to_string(running);
+            "\trunning: "       + std::to_string(running) +
+            "\tsenderRunning: " + std::to_string(senderRunning);
 }
