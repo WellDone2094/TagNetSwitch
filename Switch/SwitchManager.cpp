@@ -25,19 +25,20 @@ void SwitchManager::TCPServer(){
             while (std::getline(ss, line)) {
                 if(!ss.eof()) {
                     resp = executeCmd(line);
-                    std::cout << resp << std::endl;
                     send(clientfd, resp.c_str(), resp.length(), 0);
                     str="";
                 }else{
                     str = line;
                 }
             }
-            if(!running)
-                close(clientfd);
+            if(!running) {
+                break;
+            }
             nbyte = recv(clientfd, buff, 10, 0);
         }
         close(clientfd);
     }
+    close(clientfd);
 }
 
 const std::string SwitchManager::executeCmd(std::string s) {
@@ -52,7 +53,6 @@ const std::string SwitchManager::executeCmd(std::string s) {
     int n1, n2;
     std::string s1, s2, s3;
     Switch *sw = methodMap[cmd]->s;
-    std::cout << methodMap[cmd] << std::endl;
     switch (methodMap[cmd]->t) {
         case VOID:
             return (sw->*methodMap[cmd]->void_m)();

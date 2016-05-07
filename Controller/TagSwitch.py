@@ -4,21 +4,21 @@ import socket
 import time
 
 class TagSwitch():
+    def __init__(self, port, outputHandler):
+        self.port = port
+        self.interfaces = []
+        self.outputHandler = outputHandler
 
-    output = ""
-
-    def __init__(self, port):
-        self.port = port;
-        self.p = subprocess.Popen(["./TagSwitchMain",str(port)],
+        self.p = subprocess.Popen(["../Switch/Build/Release/TagSwitchMain",str(port)],
                                     stdout=subprocess.PIPE);
-        self.output_t = Thread(target=TagSwitch.readOuput, args=(self,self.p,))
+        self.output_t = Thread(target=TagSwitch.readOuput, args=(self, self.p, self.outputHandler))
         self.output_t.start()
         time.sleep(1)
         self.connect()
 
-    def readOuput(tagSwitch,proc):
+    def readOuput(tagSwitch,proc, outputHandler):
         while proc.poll() is None:
-            tagSwitch.output = tagSwitch.output + proc.stdout.readline().decode()
+            outputHandler(proc.stdout.readline().decode())
 
     def connect(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -32,13 +32,17 @@ class TagSwitch():
     def list_interfaces(self):
         return self.send('list_interfaces')
 
-    def add_interface(self, inPort, outIp, outPort):
-        msg = 'add_interface %d %d %s' %(inPort, outPort, outIp)
+    def add_interface(self, inPort):
+        msg = 'add_interface %d' %(inPort)
+        return self.send(msg)
+
+    def set_interface_out(self, id, port, ip):
+        msg = 'set_interface_out %d %d %s' %(id, port, ip)
         return self.send(msg)
 
     def add_filter(self, tree, interface, filter):
         msg = 'add_filter %d %d %s' %(tree, interface, filter)
-        return self.send(msg)
+        return self.send(msg    )
 
     def add_tags(self, tree, interface, tags):
         msg = 'add_tags %d %d' %(tree, interface)
@@ -46,19 +50,26 @@ class TagSwitch():
             msg = msg + ' '+tag
         return self.send(msg)
 
+    def start_interface(self, interface):
+        msg = 'start_interface %d' %interface
+        return self.send(msg)
+
+    def stop_interface(self, interface):
+        msg = 'stop_interface %d' %interface
+        return self.send(msg)
+
     def close(self):
-        self.s.close()
+        msg = 'quit'
+        resp = self.send(msg)
+        self.output_t.join()
+        return resp
 
 
-
-t = TagSwitch(1236)
-print(t.add_interface(4001, '127.0.0.1', 5000))
-print(t.list_interfaces())
-print(t.add_tags(1,2,['prova','usi','fff']))
-print(t.add_filter(0,1,'0001011101100100101'))
-t.close()
+# def handler(s):
+    # print(s)
 
 
-# while t.p.poll() is None:
-#     print(t.output)
-#     print(t.p.stdout.readline())
+# t = TagSwitch(1235, handler)
+# print(t.add_interface(4000))
+# print(t.set_interface_out(1,5000,'127.0.0.1'))
+# print(t.close())

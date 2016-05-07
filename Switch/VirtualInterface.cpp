@@ -77,8 +77,6 @@ void VirtualInterface::receiver() {
 
         if (recvlen > 0) {
             p->buffer->data[recvlen] = 0;
-            std::cout << "received" << std::endl;
-            std::cout << p->buffer << std::endl;
             p->inputInterface = id;
             p->parse();
             packetQueue->push(p);

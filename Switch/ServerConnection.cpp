@@ -27,7 +27,7 @@ int ServerConnection::takeConn() {
 	sockaddr_in client;
 	newsocketfd = accept(sockfd, NULL, NULL);
 	if (newsocketfd < 0)
-		return NULL;
+		return -1;
 	return newsocketfd;
 }
 

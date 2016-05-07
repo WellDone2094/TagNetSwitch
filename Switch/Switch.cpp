@@ -104,7 +104,6 @@ const std::string Switch::stop_interface(int id) {
 
 const std::string Switch::add_filter(int tree, int interface, const std::string& filter_s) {
     filter_t f(filter_s);
-    std::cout << tree << " " << interface << " " << filter_s << std::endl;
     matcher.add(f, (tree_t) tree, (interface_t) interface);
     return "filter added";
 }
