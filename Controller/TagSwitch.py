@@ -63,13 +63,3 @@ class TagSwitch():
         resp = self.send(msg)
         self.output_t.join()
         return resp
-
-
-# def handler(s):
-    # print(s)
-
-
-# t = TagSwitch(1235, handler)
-# print(t.add_interface(4000))
-# print(t.set_interface_out(1,5000,'127.0.0.1'))
-# print(t.close())

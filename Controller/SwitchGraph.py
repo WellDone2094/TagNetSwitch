@@ -1,13 +1,9 @@
-import random
-import configparser
 import socket
 import TagSwitch
 from TagSwitch import *
 from BitVector import *
 from HashFunction import *
 
-def handler(s):
-    print(s)
 
 def getFreePort():
     s = socket.socket()
@@ -23,6 +19,18 @@ class Interface:
         self.id = id
         self.inPort = port
         self.outPort = -1
+
+
+
+
+
+
+
+####################################
+
+############ ClientNode ############
+
+####################################
 
 class ClientNode:
     def __init__(self, id, port, handler):
@@ -68,9 +76,21 @@ class ClientNode:
             bmsg = btree + bv.getBytes() + msg.encode()
             self.cSock.sendto(bmsg, ('127.0.0.1',self.outPort))
 
+
+
+
+
+
+
+
+####################################
+
+############ SwitchNode ############
+
+####################################
 class SwitchNode:
 
-    def __init__(self,id,if_n):
+    def __init__(self,id, if_n, handler):
         self.tagSwitch = TagSwitch(getFreePort(), handler)
         self.ip = '127.0.0.1'
         self.interfaceSwitchMap = {}
@@ -121,52 +141,3 @@ class SwitchNode:
             else:
                 s = s+'\n\t%d: %d\tportIn:%d\tportOut:%d' %(i, self.interfaceSwitchMap[i].switch.id, self.interfaceSwitchMap[i].inPort, self.interfaceSwitchMap[i].outPort)
         return s
-
-
-config = configparser.ConfigParser()
-config.read('controller.cfg')
-
-switches = []
-clients = []
-
-# ######## parser begin  ########
-
-for i in range(int(config.get('init','switch_n'))):
-    if_n = int(config.get('switch%d'%(i+1), 'n_interface'))
-    switches.append(SwitchNode(i+1, if_n))
-
-for i in range(int(config.get('init','client_n'))):
-    clients.append(ClientNode(i+101,getFreePort(), handler))
-
-for i in range(len(switches)):
-    for j in range(switches[i].if_n):
-        s = int(config.get('switch%d'%(i+1), str(j+1)))
-        if s<0:
-            switches[i].add_neighbor(clients[(-s)-1],j+1)
-            clients[i].set_out(switches[i], switches[i].interfaceSwitchMap[j+1].inPort)
-        else:
-            switches[i].add_neighbor(switches[s-1],j+1)
-
-for i in range(int(config.get('init','tree_n'))):
-    for j in range(len(switches)):
-        sl = config.get('tree%d'%(i+1), str(j+1)).split(',')
-        for n in sl:
-            sn = int(n)
-            switches[j].add_tree_neighbor(i,switches[sn-1])
-
-
-
-for s in switches:
-    s.connectSwitch()
-
-for s in switches:
-    print(s)
-
-for c in clients:
-    print('%d: %d' %(c.id,c.inPort))
-
-######## parser end  ########
-
-clients[0].add_tags(0,['usi','prova'])
-clients[1].send(0,'ciaoprova',['prova'])
-clients[2].send(0,'ciaoprovausi',['prova','usi'])
