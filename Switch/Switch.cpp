@@ -46,7 +46,6 @@ void Switch::worker() {
         Packet* p = packetQueue.pop();
         if(p== nullptr) continue;
         p->interfaces = &interfaces;
-        p->descriptor.printStr();
         matcher.match(p->descriptor, *(p->tree), *p);
         p->setDeletable(true);
         bufferManager.release(p);
@@ -114,7 +113,6 @@ const std::string Switch::add_tags(int tree, int interface, std::vector<std::str
         for(int i=0; i<7; ++i)
             f.set(hash(i, s.c_str(), s.c_str()+s.length())%192);
     }
-    f.printStr();
     matcher.add(f, (tree_t) tree, (interface_t) interface);
     return "filter added";
 }
