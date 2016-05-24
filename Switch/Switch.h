@@ -30,6 +30,7 @@ public:
     const std::string stop_interface(int id);
     const std::string add_filter(int tree, int interface, const std::string& filter);
     const std::string add_tags(int tree, int interface, std::vector<std::string>& tags);
+    const std::string reset_filters();
     const std::string quit();
 
 

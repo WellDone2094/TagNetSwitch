@@ -23,6 +23,7 @@ Switch::Switch(int port) : matcher(N_FILTERS), switchManager(port){
     switchManager.add_method("stop_interface", new SwitchMethod(this, &Switch::stop_interface));
     switchManager.add_method("add_filter", new SwitchMethod(this, &Switch::add_filter));
     switchManager.add_method("add_tags", new SwitchMethod(this, &Switch::add_tags));
+    switchManager.add_method("reset_filters", new SwitchMethod(this, &Switch::reset_filters));
     switchManager.add_method("quit", new SwitchMethod(this, &Switch::quit));
 }
 
@@ -113,6 +114,14 @@ const std::string Switch::add_tags(int tree, int interface, std::vector<std::str
         for(int i=0; i<7; ++i)
             f.set(hash(i, s.c_str(), s.c_str()+s.length())%192);
     }
+    if (matcher.exists_filter(f, tree,interface))
+        return "filter already exists";
     matcher.add(f, (tree_t) tree, (interface_t) interface);
     return "filter added";
 }
+
+const std::string Switch::reset_filters() {
+    matcher.destroy();
+    return "filter resetted";
+}
+

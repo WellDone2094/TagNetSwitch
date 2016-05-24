@@ -20,9 +20,10 @@ bool Packet::match(const filter_t &filter, tree_t tree, interface_t ifx) {
     std::cout << "tree: " << tree << "\tinterface: " << ifx << std::endl;
     try {
         VirtualInterface *i = interfaces->at(ifx);
-        if (i->id != this->inputInterface)
+        if (i->id != this->inputInterface) {
             this->incCopyCounter();
-        i->sendPacket(this);
+            i->sendPacket(this);
+        }
     }catch(std::out_of_range& e){}
 
     return false;

@@ -58,6 +58,10 @@ class TagSwitch():
         msg = 'stop_interface %d' %interface
         return self.send(msg)
 
+    def reset_filters(self):
+        msg = 'reset_filters'
+        return self.send(msg)
+
     def close(self):
         msg = 'quit'
         resp = self.send(msg)

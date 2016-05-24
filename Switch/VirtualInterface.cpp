@@ -105,6 +105,7 @@ void VirtualInterface::sender() {
             if (sendto(socketDescriptorSender, p->buffer, BUFFER_SIZE, 0, (struct sockaddr *)&sSender, sizeof(sSender)) < 0) {
                 std::cout << "send failed" << std::endl;
             }
+            std::cout << "packet_sent " << this->portReceiver << " " << this->portSender << std::endl;
             bufferManager->release(p);
         }
     }

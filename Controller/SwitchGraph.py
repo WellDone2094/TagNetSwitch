@@ -3,6 +3,8 @@ import TagSwitch
 from TagSwitch import *
 from BitVector import *
 from HashFunction import *
+from gui.mainwindow import *
+import sys
 
 
 def getFreePort():
@@ -31,6 +33,8 @@ class Interface:
 ############ ClientNode ############
 
 ####################################
+def h():
+    print('h')
 
 class ClientNode:
     def __init__(self, id, port, handler):
@@ -42,9 +46,18 @@ class ClientNode:
         self.sSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.cSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sSock.bind(('127.0.0.1',self.inPort))
-        self.outputHandler = handler
-        self.server = Thread(target=ClientNode.clientServer, args=(self, self.outputHandler))
+        self.outputHandler = h
+        self.handler = handler
+
+        self.setupGui()
+        self.server = Thread(target=ClientNode.clientServer, args=(self, self.ui.received))
         self.server.start()
+
+    def setupGui(self):
+        self.window = QtGui.QMainWindow()
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self.window,self)
+        self.window.show()
 
     def get_interface_port(self, sw):
         return self.inPort
@@ -56,8 +69,7 @@ class ClientNode:
     def clientServer(client, handler):
         while client.running:
             data = client.sSock.recv(1024)
-            print('received on client: %d' %client.id)
-            handler(data)
+            handler(data[24:].decode())
 
     def add_tags(self, tree, tags):
         self.switch.add_tags(tree, tags, self)
@@ -74,6 +86,7 @@ class ClientNode:
             else:
                 btree = bytes([tree>>8, tree&2555])
             bmsg = btree + bv.getBytes() + msg.encode()
+            self.handler('packet_sent %d %d' %(self.inPort, self.outPort))
             self.cSock.sendto(bmsg, ('127.0.0.1',self.outPort))
 
 
@@ -90,7 +103,7 @@ class ClientNode:
 ####################################
 class SwitchNode:
 
-    def __init__(self,id, if_n, handler):
+    def __init__(self,id, if_n, handler, portSwitchMap):
         self.tagSwitch = TagSwitch(getFreePort(), handler)
         self.ip = '127.0.0.1'
         self.interfaceSwitchMap = {}
@@ -101,6 +114,7 @@ class SwitchNode:
         self.if_n = if_n
         for i in range(if_n):
             p = getFreePort()
+            portSwitchMap[p] = 's%d' %id
             self.interfaceSwitchMap[i+1] = Interface(i+1, p)
             print(self.tagSwitch.add_interface(p))
 
@@ -132,6 +146,9 @@ class SwitchNode:
         for s in self.trees[tree]:
             if s != sw:
                 s.add_tags(tree, tags, self)
+
+    def reset_filters(self):
+        print(self.tagSwitch.reset_filters())
 
     def __str__(self):
         s = "switch%d" %self.id
