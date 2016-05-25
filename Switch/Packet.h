@@ -17,8 +17,9 @@
 #define DESCRIPTOR_SIZE 192
 
 
+#include <map>
 #include "BufferManager.h"
-#include "predicate.h"
+#include "patricia_predicate.hh"
 class VirtualInterface;
 
 class Packet : public match_handler {
@@ -42,7 +43,7 @@ public:
 
 private:
 
-    int copyCounter = 0;
+    int copyCounter = 1;
     bool deletable = false;
     std::mutex mutex;
 };

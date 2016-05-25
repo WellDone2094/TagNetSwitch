@@ -102,7 +102,7 @@ void VirtualInterface::sender() {
     while(senderRunning){
         Packet* p = sendQueue.pop();
         if (p!= nullptr) {
-            if (sendto(socketDescriptorSender, p->buffer, BUFFER_SIZE, 0, (struct sockaddr *)&sSender, sizeof(sSender)) < 0) {
+            if (sendto(socketDescriptorSender, p->buffer->data, BUFFER_SIZE, 0, (struct sockaddr *)&sSender, sizeof(sSender)) < 0) {
                 std::cout << "send failed" << std::endl;
             }
             std::cout << "packet_sent " << this->portReceiver << " " << this->portSender << std::endl;

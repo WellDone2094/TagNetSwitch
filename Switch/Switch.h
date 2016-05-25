@@ -11,7 +11,7 @@
 #include "SyncQueue.h"
 #include "BufferManager.h"
 #include "SwitchManager.h"
-#include "predicate.h"
+#include "patricia_predicate.hh"
 
 class Switch{
 public:

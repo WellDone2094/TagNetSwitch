@@ -12,19 +12,20 @@ Packet::Packet(Buffer* buf) {
 
 void Packet::parse() {
     this->tree = (uint16_t *) buffer->data;
-    this->descriptor = filter_t(&buffer->data[2]);
-//    this->descriptor.printStr();
+    this->descriptor = filter_t((block_t *) &buffer->data[2]);
+    this->descriptor.write_ascii(std::cout) << std::endl;
 }
 
 bool Packet::match(const filter_t &filter, tree_t tree, interface_t ifx) {
-    std::cout << "tree: " << tree << "\tinterface: " << ifx << std::endl;
-    try {
-        VirtualInterface *i = interfaces->at(ifx);
-        if (i->id != this->inputInterface) {
-            this->incCopyCounter();
-            i->sendPacket(this);
-        }
-    }catch(std::out_of_range& e){}
+    if (*this->tree == tree) {
+        try {
+            VirtualInterface *i = interfaces->at(ifx);
+            if (i->id != this->inputInterface) {
+                this->incCopyCounter();
+                i->sendPacket(this);
+            }
+        } catch (std::out_of_range &e) { }
+    }
 
     return false;
 }

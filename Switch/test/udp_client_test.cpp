@@ -11,6 +11,8 @@
 #include <string>
 #include <thread>
 #include <arpa/inet.h>
+#include "../filter.hh"
+#include "../hashFunction.h"
 
 #define BUFSIZE 2048
 
@@ -84,18 +86,26 @@ int main() {
 
         /* add tree number and descriptor to the message */
         int16_t tree = 0;
-        int64_t b[3];
 
-        b[0] = 0x3580262917356263;
-        b[1] = 0x8362952135251622;
-        b[2] = 0x1736252119264231;
+        filter_t f;
+        f.clear();
+        std::string s = "usi";
+        for(int i=0; i<7; ++i)
+            f.set_bit(hash(i, s.c_str(), s.c_str()+s.length())%192);
 
         strncpy(my_message, (char*)&tree, 2);
-        strncpy(my_message+2, (char*)b, 24);
+        memcpy(my_message+2, f.b, 24);
+//        strncpy(my_message+2, (char*)&f.b[0], 8);
+//        strncpy(my_message+10, (char*)&f.b[1], 8);
+//        strncpy(my_message+18, (char*)&f.b[2], 8);
         strcpy(my_message+26, line.c_str());
 
-        std::cout << std::bitset<64>(b[0]) << std::bitset<64>(b[1]) << std::bitset<64>(b[2]) << std::endl;
+//        std::cout << std::bitset<64>(b[0]) << std::bitset<64>(b[1]) << std::bitset<64>(b[2]) << std::endl;
 
+        f.write_ascii(std::cout) << std::endl;
+        for (int i = 0; i < 24; ++i)
+            for(unsigned char mask = 1; mask != 0; mask <<= 1)
+                std::cout << ((my_message[i+2] & mask) ? '1' : '0');
         std::cout << my_message << std::endl;
 
 

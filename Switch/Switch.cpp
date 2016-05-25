@@ -11,7 +11,7 @@
 #define N_FILTERS 10
 
 
-Switch::Switch(int port) : matcher(N_FILTERS), switchManager(port){
+Switch::Switch(int port) : matcher(), switchManager(port){
     lastPort = 4000;
     lastId = 0;
     worker_t = new std::thread(&Switch::worker, this);
@@ -47,7 +47,7 @@ void Switch::worker() {
         Packet* p = packetQueue.pop();
         if(p== nullptr) continue;
         p->interfaces = &interfaces;
-        matcher.match(p->descriptor, *(p->tree), *p);
+        matcher.match(p->descriptor, *p);
         p->setDeletable(true);
         bufferManager.release(p);
     }
@@ -110,18 +110,20 @@ const std::string Switch::add_filter(int tree, int interface, const std::string&
 
 const std::string Switch::add_tags(int tree, int interface, std::vector<std::string>& tags) {
     filter_t f;
+    f.clear();
     for(std::string s : tags){
         for(int i=0; i<7; ++i)
-            f.set(hash(i, s.c_str(), s.c_str()+s.length())%192);
+            f.set_bit(hash(i, s.c_str(), s.c_str()+s.length())%192);
     }
-    if (matcher.exists_filter(f, tree,interface))
-        return "filter already exists";
+    f.write_ascii(std::cout) << std::endl;
+//    if (matcher.exists_filter(f, tree,interface))
+//        return "filter already exists";
     matcher.add(f, (tree_t) tree, (interface_t) interface);
     return "filter added";
 }
 
 const std::string Switch::reset_filters() {
-    matcher.destroy();
+    matcher.clear();
     return "filter resetted";
 }
 
