@@ -18,6 +18,10 @@ void Packet::parse() {
 
 bool Packet::match(const filter_t &filter, tree_t tree, interface_t ifx) {
     if (*this->tree == tree) {
+        if(std::find(this->output.begin(), this->output.end(), ifx) != this->output.end()){
+            return false;
+        }
+        this->output.push_back(ifx);
         try {
             VirtualInterface *i = interfaces->at(ifx);
             if (i->id != this->inputInterface) {

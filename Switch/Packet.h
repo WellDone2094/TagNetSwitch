@@ -31,6 +31,7 @@ public:
     filter_t descriptor;
     Buffer *buffer;
     std::map <int, VirtualInterface*> *interfaces;
+    std::vector<int> output;
 
     bool decCopyCounter();
     void incCopyCounter();
