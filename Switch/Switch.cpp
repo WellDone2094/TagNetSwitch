@@ -115,9 +115,6 @@ const std::string Switch::add_tags(int tree, int interface, std::vector<std::str
         for(int i=0; i<7; ++i)
             f.set_bit(hash(i, s.c_str(), s.c_str()+s.length())%192);
     }
-    f.write_ascii(std::cout) << std::endl;
-//    if (matcher.exists_filter(f, tree,interface))
-//        return "filter already exists";
     matcher.add(f, (tree_t) tree, (interface_t) interface);
     return "filter added";
 }

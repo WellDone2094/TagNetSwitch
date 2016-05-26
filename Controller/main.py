@@ -14,12 +14,22 @@ sem = Semaphore()
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 portSwitchMap = {}
 
+def reset_filters():
+    for s in switches:
+        s.reset_filters()
+    for c in clients:
+        s.reset_filters()
+
 def handler(msg):
     sem.acquire()
     words = msg.split(' ')
     if words[0] == 'packet_sent':
-        msg = 'message %s %s' %(portSwitchMap[int(words[1].strip())],portSwitchMap[int(words[2].strip())])
-        sock.sendto(msg.encode(), (UDP_IP, UDP_PORT))
+        print(msg)
+        try:
+            msg = 'message %s %s' %(portSwitchMap[int(words[1].strip())],portSwitchMap[int(words[2].strip())])
+            sock.sendto(msg.encode(), (UDP_IP, UDP_PORT))
+        except ValueError:
+            print('cant convert')
     sem.release()
 
 def parse(file):
@@ -33,7 +43,7 @@ def parse(file):
     for i in range(int(config.get('init','client_n'))):
         port = getFreePort()
         portSwitchMap[port] = 'c%d' %(i+1)
-        clients.append(ClientNode(i+1,port, handler))
+        clients.append(ClientNode(i+1,port, handler, clients, switches))
 
     print(portSwitchMap)
 
@@ -78,6 +88,7 @@ def parse(file):
 
 def main():
     parse('controller.cfg')
+    clients[0].add_tags(0,['usi'])
     switches[0].reset_filters()
     # time.sleep(2)
     # switches[0].reset_filters()
@@ -88,13 +99,5 @@ def main():
 if __name__ == '__main__':
     import sys
     app = QtGui.QApplication(sys.argv)
-    # app = QtGui.QApplication(sys.argv)
-    # MainWindow = QtGui.QMainWindow()
-    # ui = Ui_MainWindow()
-    # ui.setupUi(MainWindow)
-    # MainWindow.show()
-    # Main2 = QtGui.QMainWindow()
-    # Main2.show()
-    # sys.exit(app.exec_())
     main()
     sys.exit(app.exec_())

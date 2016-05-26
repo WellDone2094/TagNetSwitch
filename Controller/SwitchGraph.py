@@ -4,6 +4,7 @@ from TagSwitch import *
 from BitVector import *
 from HashFunction import *
 from gui.mainwindow import *
+from main import *
 import sys
 
 
@@ -37,8 +38,10 @@ def h():
     print('h')
 
 class ClientNode:
-    def __init__(self, id, port, handler):
+    def __init__(self, id, port, handler, clients, switches):
         self.id = id
+        self.clients = clients
+        self.switches = switches
         self.inPort = port
         self.outPort = -1
         self.switch = None
@@ -48,6 +51,7 @@ class ClientNode:
         self.sSock.bind(('127.0.0.1',self.inPort))
         self.outputHandler = h
         self.handler = handler
+        self.tags = []
 
         self.setupGui()
         self.server = Thread(target=ClientNode.clientServer, args=(self, self.ui.received))
@@ -72,6 +76,7 @@ class ClientNode:
             handler(data[24:].decode())
 
     def add_tags(self, tree, tags):
+        self.tags.append(tags)
         self.switch.add_tags(tree, tags, self)
 
     def send(self, tree, msg, tags):
@@ -89,7 +94,19 @@ class ClientNode:
             self.handler('packet_sent %d %d' %(self.inPort, self.outPort))
             self.cSock.sendto(bmsg, ('127.0.0.1',self.outPort))
 
+    def reset_filters(self):
+        print('reset filter')
+        print(self.tags)
+        for tag in self.tags:
+            self.switch.add_tags(0,tag,self)
 
+    def remove_tag(self, tag):
+        i = self.tags.index(tag)
+        del self.tags[i]
+        for s in self.switches:
+            s.reset_filters()
+        for c in self.clients:
+            c.reset_filters()
 
 
 
@@ -112,6 +129,7 @@ class SwitchNode:
         self.neighbors = []
         self.id = id
         self.if_n = if_n
+        self.tags = []
         for i in range(if_n):
             p = getFreePort()
             portSwitchMap[p] = 's%d' %id
@@ -142,12 +160,16 @@ class SwitchNode:
 
     def add_tags(self, tree, tags, sw):
         # add rules
+        if (tags,sw) in self.tags:
+            return
+        self.tags.append((tags,sw))
         self.tagSwitch.add_tags(tree, self.switchInterfaceMap[sw].id, tags)
         for s in self.trees[tree]:
             if s != sw:
                 s.add_tags(tree, tags, self)
 
     def reset_filters(self):
+        self.tags =[]
         print(self.tagSwitch.reset_filters())
 
     def __str__(self):

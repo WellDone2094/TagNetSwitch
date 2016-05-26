@@ -81,7 +81,11 @@ class Ui_MainWindow(object):
             return
         self.tags.append(tag)
         if len(tag) > 0:
-            self.client.add_tags(0,[tag])
+            tags = tag.split(',')
+            tags_strip = []
+            for t in tags:
+                tags_strip.append(t.strip())
+            self.client.add_tags(0,tags_strip)
             self.listWidget.addItem(tag)
         self.lineEdit.setText('')
 
@@ -90,6 +94,10 @@ class Ui_MainWindow(object):
         if not items: return
         for item in items:
             self.listWidget.takeItem(self.listWidget.row(item))
+            tag = item.text().strip()
+            i = self.tags.index(tag)
+            del self.tags[i]
+            self.client.remove_tag([tag])
 
     def sendMessage(self):
         dialog = QtGui.QDialog(self.MainWindow)
