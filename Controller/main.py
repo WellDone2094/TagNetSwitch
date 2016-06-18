@@ -24,7 +24,6 @@ def handler(msg):
     sem.acquire()
     words = msg.split(' ')
     if words[0] == 'packet_sent':
-        print(msg)
         try:
             msg = 'message %s %s' %(portSwitchMap[int(words[1].strip())],portSwitchMap[int(words[2].strip())])
             sock.sendto(msg.encode(), (UDP_IP, UDP_PORT))
@@ -88,8 +87,6 @@ def parse(file):
 
 def main():
     parse('controller.cfg')
-    clients[0].add_tags(0,['usi'])
-    switches[0].reset_filters()
     # time.sleep(2)
     # switches[0].reset_filters()
     # switches[1].reset_filters()
