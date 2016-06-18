@@ -2,9 +2,8 @@ cmake_minimum_required(VERSION 3.4)
 project(TagSwitch)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "./build/Release")
 
-set(SOURCE_FILES_CLIENT test/udp_client_test.cpp)
-add_executable(TagSwitchClient ${SOURCE_FILES_CLIENT})
 
 set(SOURCE_FILES_MAIN
         main.cpp
@@ -24,4 +23,3 @@ set(SOURCE_FILES_MAIN
         )
 
 add_executable(TagSwitchMain ${SOURCE_FILES_MAIN})
-
