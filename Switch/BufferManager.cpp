@@ -22,6 +22,7 @@ void BufferManager::release(Packet* p) {
     std::lock_guard<std::mutex> lk(mutex);
     if (p->decCopyCounter()) {
         p->buffer->next = free_list;
+        memset(p->buffer->data, '\0', 1024);
         free_list = p->buffer;
         delete p;
     }
